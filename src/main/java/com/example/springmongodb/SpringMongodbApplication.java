@@ -1,17 +1,22 @@
 package com.example.springmongodb;
 
 import com.mongodb.MongoException;
+import com.mongodb.client.*;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.bson.Document;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +32,9 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 
 @SpringBootApplication
 public class SpringMongodbApplication implements CommandLineRunner {
+    @Autowired
+    private CRUDService crudService;
+    private static final Logger logger = LogManager.getLogger(SpringMongodbApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(SpringMongodbApplication.class, args);
@@ -34,6 +42,11 @@ public class SpringMongodbApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        //Initialize logger
+        logger.info("Current Working Directory: " + System.getProperty("user.dir"));
+
+        logger.info("Logging ...");
+
         // Replace the placeholder with your MongoDB deployment's connection string
         String uri = "mongodb://localhost:27017/";
         CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
@@ -46,6 +59,7 @@ public class SpringMongodbApplication implements CommandLineRunner {
                     new Document().append("title", "Short Circuit 3"),
                     new Document().append("title", "The Lego Frozen Movie"),
                           new Document().append("title", "Back to the Future"));
+            //InsertManyResult
             try {
                 InsertManyResult result = collection.insertMany(movieList);
                 System.out.println("movies insertion complete");
@@ -54,6 +68,12 @@ public class SpringMongodbApplication implements CommandLineRunner {
             } catch (MongoException me) {
                 System.err.println("Unable to insert due to an error: " + me);
             }
+
+            //InsertOneResult
+            InsertOneResult movie1=  collection.insertOne(new Document()
+                .append("_id", new ObjectId())
+                .append("title", "MIB")
+                .append("genres", Arrays.asList("Original", "Action")));
 
             Document doc = collection.find().first();
             if (doc != null) {
@@ -107,6 +127,37 @@ public class SpringMongodbApplication implements CommandLineRunner {
             records.forEach(System.out::println);
 
 
+            //
+
+
+            Bson projectionFields = Projections.fields(
+                    Projections.include("title", "plot"),
+                    Projections.excludeId());
+             Document docMovie = collection.find(eq("title", "Visali"))
+                    .projection(projectionFields)
+                    //.sort(Sorts.descending("imdb.rating"))
+                    .first();
+            if (docMovie == null) {
+                System.out.println("No results found.");
+            } else {
+                System.out.println(docMovie.toJson());
+            }
+
+
+            MongoCursor<Document> cursor = collection.find(eq("plot","horror"))
+                    .projection(projectionFields)
+                    .sort(Sorts.descending("title")).iterator();
+
+
+            try {
+                while(cursor.hasNext()) {
+                    System.out.println(cursor.next().toJson());
+                }
+            } finally {
+                cursor.close();
+            }
+
+            crudService.updateOps(collection, database);
         }
     }
 }
