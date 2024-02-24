@@ -44,10 +44,12 @@ public class SpringMongodbApplication implements CommandLineRunner {
         //crudService.addMovie(movie);
         crudService.deleteMovie("2024 movie");
 
-        Person person = new Person("1","peter","parker" );
+        Person person = new Person("1","peter","parker", "12345" );
 
-        crudService.addPerson(person);
+        //crudService.addPerson(person);
         //movieRepository.save(movie);
+
+        crudService.deletePersonByAcctNumber("12345");
 
     }
 }

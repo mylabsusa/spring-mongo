@@ -19,10 +19,11 @@ public class Person {
     @Id
    private String id;
 
-    public Person(String id, String firstName, String secondName) {
+    public Person(String id, String firstName, String secondName, String accountNumber) {
         this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
+        this.accountNumber=accountNumber;
     }
 
     @Override
@@ -33,9 +34,18 @@ public class Person {
                 ", secondName='" + secondName + '\'' +
                 '}';
     }
-
-    @Indexed(name = "first_name_index", direction = IndexDirection.DESCENDING)
         private String firstName;
 
         private String secondName;
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    @Indexed
+        private String accountNumber;
 }

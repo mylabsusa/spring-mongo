@@ -26,6 +26,14 @@ public class CRUDService {
         personRepository.save(person);
     }
 
+    public boolean deletePersonByAcctNumber(String accountnumber){
+        System.out.println("account number "+accountnumber);
+        Person person = personRepository.findByAccountNumber(accountnumber);
+        personRepository.delete(person);
+        return true;
+    }
+
+
     public void addMovie(Movie movie){
         System.out.println("Movie to be added");
         movieRepository.save(movie);
