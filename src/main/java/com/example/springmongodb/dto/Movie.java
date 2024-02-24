@@ -1,13 +1,22 @@
-package com.example.springmongodb;
+package com.example.springmongodb.dto;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.List;
 
+@Document("new-movie")
 public class Movie {
+
+    @Indexed(name = "plot")
     String plot;
 
     public Movie() {
     }
 
     List<String> genres;
+
+    @Indexed(unique = true)
     String title;
 
     public Movie(String plot, List<String> genres, String title) {

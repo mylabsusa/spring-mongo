@@ -1,4 +1,4 @@
-package com.example.springmongodb;
+package com.example.springmongodb.dao;
 
 import org.bson.BsonType;
 import org.bson.codecs.pojo.annotations.BsonProperty;
